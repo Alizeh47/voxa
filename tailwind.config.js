@@ -6,7 +6,17 @@ module.exports = {
     "./sections/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    screens: {
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     extend: {
+      maxWidth: {
+        '7xl': '80rem',
+      },
       colors: {
         primary: {
           DEFAULT: '#3B82F6', // Blue

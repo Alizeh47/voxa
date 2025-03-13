@@ -1,9 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "./sections/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     screens: {
@@ -16,12 +16,17 @@ module.exports = {
     extend: {
       maxWidth: {
         '7xl': '80rem',
+        'screen-sm': '640px',
+        'screen-md': '768px',
+        'screen-lg': '1024px',
+        'screen-xl': '1280px',
+        'screen-2xl': '1536px',
       },
       colors: {
         primary: {
           DEFAULT: '#3B82F6', // Blue
           light: '#93C5FD',
-          dark: '#1E40AF',
+          dark: '#2563EB',
         },
         secondary: {
           DEFAULT: '#10B981', // Green

@@ -1,61 +1,107 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Supabase configuration
 const supabaseUrl = 'https://iyibitoljdhxpyqgpskw.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5aWJpdG9samRoeHB5cWdwc2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3OTk3NDAsImV4cCI6MjA1NzM3NTc0MH0.dGr3f3QRk84Trl0fQGS1G-yFlZcwc1rCcz9Jujk2Cmc';
 
-// Create a single supabase client for interacting with your database
+// Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Types for Supabase tables
-export type User = {
+// Type definitions
+export interface User {
   id: string;
   full_name: string;
-  email: string;
   avatar_url?: string;
-  bio?: string;
-  status: 'online' | 'offline' | 'away';
-  last_seen: string;
+  email: string;
+  status?: 'online' | 'offline' | 'away' | 'busy';
+  last_seen?: string;
   created_at: string;
   updated_at: string;
-};
+}
 
-export type Conversation = {
+export interface Conversation {
   id: string;
-  name?: string;
+  name: string | null;
   is_group: boolean;
   created_by: string;
   created_at: string;
   updated_at: string;
-};
+  last_message?: Message[];
+  conversation_participants?: ConversationParticipant[];
+}
 
-export type Message = {
+export interface ConversationParticipant {
   id: string;
   conversation_id: string;
-  sender_id: string;
-  message_text?: string;
-  message_type: 'text' | 'image' | 'video' | 'audio' | 'document';
-  is_deleted: boolean;
+  user_id: string;
+  is_admin: boolean;
+  joined_at: string;
+  users?: User;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  message_text: string;
+  attachments?: string[];
+  is_edited: boolean;
   created_at: string;
   updated_at: string;
-};
+  user?: User;
+  message_reactions?: MessageReaction[];
+  message_read_status?: MessageReadStatus[];
+}
 
-export type Contact = {
+export interface MessageReaction {
+  id: string;
+  message_id: string;
+  user_id: string;
+  reaction_type: string;
+  created_at: string;
+}
+
+export interface MessageReadStatus {
+  id: string;
+  message_id: string;
+  user_id: string;
+  read_at: string;
+}
+
+export interface MediaFile {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+  uploaded_by: string;
+  conversation_id?: string;
+  message_id?: string;
+  created_at: string;
+}
+
+export interface Contact {
   id: string;
   user_id: string;
   contact_id: string;
-  status: 'pending' | 'accepted' | 'blocked';
+  contact_name?: string;
   created_at: string;
   updated_at: string;
-};
+  contact_user?: User;
+}
 
-export type MediaFile = {
+export interface Notification {
   id: string;
-  message_id: string;
-  sender_id: string;
-  file_url: string;
-  file_type: string;
-  file_name: string;
-  file_size: number;
-  content_type: string;
+  user_id: string;
+  type: 'message' | 'reaction' | 'mention' | 'system';
+  content: string;
+  is_read: boolean;
+  related_id?: string;
   created_at: string;
+}
+
+// Helper functions
+export const getFileUrl = (path: string) => {
+  const { data } = supabase.storage.from('voxa-media').getPublicUrl(path);
+  return data.publicUrl;
 }; 

@@ -1,24 +1,21 @@
+'use client';
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { getCurrentUser, signOut } from '../services/auth.service';
+import { getCurrentUser, signOut, signIn, signUp } from '../services/auth.service';
 import { User, supabase } from '../utils/supabase';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: Error | null;
-  logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: Error }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: Error }>;
+  signOut: () => Promise<{ success: boolean; error?: Error }>;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  error: null,
-  logout: async () => {},
-  refreshUser: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -30,70 +27,138 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
-  const refreshUser = async () => {
+  useEffect(() => {
+    // Initialize Supabase auth state
+    const initializeAuth = async () => {
+      try {
+        setLoading(true);
+        
+        // Get initial session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          throw sessionError;
+        }
+
+        if (session) {
+          // Fetch user profile if session exists
+          const { data, error } = await getCurrentUser();
+          
+          if (error) {
+            throw error;
+          }
+          
+          if (data?.profile) {
+            setUser(data.profile);
+          }
+        }
+      } catch (err: any) {
+        console.error('Error initializing auth:', err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // Fetch user profile
+        const { data } = await getCurrentUser();
+        if (data?.profile) {
+          setUser(data.profile);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        router.push('/login');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router]);
+
+  const handleSignIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      setError(null);
+      const { data, error } = await signIn(email, password);
       
-      const { data, error: userError } = await getCurrentUser();
-      
-      if (userError) {
-        throw userError;
+      if (error) {
+        throw error;
       }
       
-      if (data) {
-        // Fetch additional user data from the users table
-        const { data: userData } = await fetch(`/api/users/${data.id}`).then(res => res.json());
-        setUser(userData || null);
-      } else {
-        setUser(null);
+      // Fetch user profile
+      const { data: userData } = await getCurrentUser();
+      if (userData?.profile) {
+        setUser(userData.profile);
+        router.push('/');
       }
-    } catch (err) {
-      console.error('Error refreshing user:', err);
-      setError(err as Error);
-      setUser(null);
+      
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error signing in:', err);
+      setError(err);
+      return { success: false, error: err };
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = async () => {
+  const handleSignUp = async (email: string, password: string, fullName: string) => {
     try {
-      const { error } = await signOut();
-      if (error) throw error;
-      setUser(null);
-      router.push('/login');
-    } catch (err) {
-      console.error('Error signing out:', err);
-      setError(err as Error);
+      setLoading(true);
+      const { data, error } = await signUp(email, password, fullName);
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data?.profile) {
+        setUser(data.profile);
+        router.push('/');
+      }
+      
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error signing up:', err);
+      setError(err);
+      return { success: false, error: err };
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    refreshUser();
-    
-    // Set up auth state listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          refreshUser();
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-        }
+  const handleSignOut = async () => {
+    try {
+      setLoading(true);
+      const { error } = await signOut();
+      
+      if (error) {
+        throw error;
       }
-    );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
+      
+      setUser(null);
+      router.push('/login');
+      return { success: true };
+    } catch (err: any) {
+      console.error('Error signing out:', err);
+      setError(err);
+      return { success: false, error: err };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const value = {
     user,
     loading,
     error,
-    logout,
-    refreshUser,
+    signIn: handleSignIn,
+    signUp: handleSignUp,
+    signOut: handleSignOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

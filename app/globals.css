@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Michroma&family=Rowdies:wght@300;400;700&family=Audiowide&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rowdies:wght@300;400;700&family=Audiowide&display=swap');
+ 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,6 +15,9 @@
   --secondary-bg: #1F2937;
   --accent-blue: #3E7BFA;
   --accent-orange: #FF5C4C;
+  --font-michroma: 'Michroma', sans-serif;
+  --font-rowdies: 'Rowdies', cursive;
+  --font-audiowide: 'Audiowide', cursive;
 }
 
 body {
@@ -31,7 +34,7 @@ body {
 }
 
 .font-bruno {
-  font-family: var(--font-bruno-ace);
+  font-family: var(--font-audiowide);
 }
 
 /* Smooth transitions for sidebar */

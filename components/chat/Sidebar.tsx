@@ -18,7 +18,11 @@ interface NavItem {
   onClick?: () => void;
 }
 
-const Sidebar = () => {
+interface SidebarProps {
+  className?: string;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState('messages');
@@ -83,7 +87,7 @@ const Sidebar = () => {
     <div 
       className={`${
         isCollapsed ? 'w-[72px]' : 'w-[200px]'
-      } h-screen bg-[#2A3447] flex flex-col items-center py-6 transition-all duration-300 ease-in-out`}
+      } h-screen bg-[#2A3447] flex flex-col items-center py-6 transition-all duration-300 ease-in-out ${className}`}
     >
       {/* App Name */}
       <div className={`mb-6 ${isCollapsed ? 'scale-0 h-0' : 'scale-100 h-auto'} transition-all duration-300`}>

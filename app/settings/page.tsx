@@ -1,254 +1,166 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import Spinner from '../../components/shared/Spinner';
-import { updatePassword } from '../../services/auth.service';
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { 
+  Bell, 
+  Shield, 
+  User, 
+  Moon,
+  Sun,
+  Volume2,
+  MessageSquare,
+  Lock,
+  ChevronRight
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { BackButton } from '@/components/ui/back-button';
+import SharedLayout from '@/components/Layout/SharedLayout';
 
-const SettingsPage: React.FC = () => {
-  const { user, loading } = useAuth();
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
-  
-  // Notification settings
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [notificationLoading, setNotificationLoading] = useState(false);
-  const [notificationError, setNotificationError] = useState<string | null>(null);
-  const [notificationSuccess, setNotificationSuccess] = useState<string | null>(null);
-
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Reset states
-    setPasswordError(null);
-    setPasswordSuccess(null);
-    
-    // Validate passwords
-    if (newPassword !== confirmPassword) {
-      setPasswordError('New passwords do not match');
-      return;
-    }
-    
-    if (newPassword.length < 8) {
-      setPasswordError('Password must be at least 8 characters long');
-      return;
-    }
-    
-    try {
-      setPasswordLoading(true);
-      
-      const { error } = await updatePassword(newPassword);
-      
-      if (error) {
-        throw error;
+export default function SettingsPage() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
       }
-      
-      setPasswordSuccess('Password updated successfully');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (err: any) {
-      console.error('Error updating password:', err);
-      setPasswordError(err.message || 'Failed to update password');
-    } finally {
-      setPasswordLoading(false);
     }
   };
 
-  const handleNotificationSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Reset states
-    setNotificationError(null);
-    setNotificationSuccess(null);
-    
-    try {
-      setNotificationLoading(true);
-      
-      // Simulate API call to update notification settings
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setNotificationSuccess('Notification settings updated successfully');
-    } catch (err: any) {
-      console.error('Error updating notification settings:', err);
-      setNotificationError(err.message || 'Failed to update notification settings');
-    } finally {
-      setNotificationLoading(false);
-    }
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
   };
 
-  if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="large" />
+    <SharedLayout>
+      <div className="container mx-auto p-6 relative">
+        {/* Geometric Decorations */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-green-500 opacity-10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 -left-20 w-96 h-96 bg-yellow-500 opacity-10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="mb-6">
+          <BackButton />
       </div>
-    );
-  }
 
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <h2 className="text-2xl font-bold mb-4">Sign In Required</h2>
-        <p className="text-gray-600 mb-6">Please sign in to access your settings.</p>
-        <a 
-          href="/login" 
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
         >
-          Go to Login
-        </a>
-      </div>
-    );
-  }
+          <h1 className="text-4xl font-cal font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-gray-100 dark:to-gray-400">
+            Settings
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2 font-inter">
+            Manage your account preferences and application settings
+          </p>
+        </motion.div>
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
-        
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Change Password</h2>
-          
-          {passwordError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {passwordError}
+        <motion.div 
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid gap-6 max-w-4xl"
+        >
+          {/* Account Settings */}
+          <motion.div variants={item}>
+            <Card className="group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-cal font-semibold mb-4 flex items-center gap-2">
+                  <User className="w-5 h-5 text-blue-500" />
+                  Account Settings
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors group/item">
+                    <div>
+                      <h3 className="font-medium font-cal">Email Notifications</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-inter">Receive email updates about your account</p>
             </div>
-          )}
-          
-          {passwordSuccess && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {passwordSuccess}
+                    <Button variant="ghost" className="group-hover/item:translate-x-1 transition-transform">
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
             </div>
-          )}
-          
-          <form onSubmit={handlePasswordChange}>
-            <div className="mb-4">
-              <label htmlFor="currentPassword" className="block text-gray-700 font-medium mb-2">
-                Current Password
-              </label>
-              <input
-                id="currentPassword"
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
+                  <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors group/item">
+                    <div>
+                      <h3 className="font-medium font-cal">Change Password</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-inter">Update your password regularly</p>
             </div>
-            
-            <div className="mb-4">
-              <label htmlFor="newPassword" className="block text-gray-700 font-medium mb-2">
-                New Password
-              </label>
-              <input
-                id="newPassword"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Must be at least 8 characters long
-              </p>
+                    <Button variant="ghost" className="group-hover/item:translate-x-1 transition-transform">
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
             </div>
-            
-            <div className="mb-6">
-              <label htmlFor="confirmPassword" className="block text-gray-700 font-medium mb-2">
-                Confirm New Password
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
             </div>
-            
-            <button
-              type="submit"
-              disabled={passwordLoading}
-              className={`px-6 py-2 rounded-md text-white font-medium ${
-                passwordLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {passwordLoading ? 'Updating...' : 'Update Password'}
-            </button>
-          </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Privacy Settings */}
+          <motion.div variants={item}>
+            <Card className="group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-cal font-semibold mb-4 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-green-500" />
+                  Privacy Settings
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors group/item">
+                    <div>
+                      <h3 className="font-medium font-cal">Profile Visibility</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-inter">Control who can see your profile</p>
         </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Notification Settings</h2>
-          
-          {notificationError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {notificationError}
+                    <Button variant="ghost" className="group-hover/item:translate-x-1 transition-transform">
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
             </div>
-          )}
-          
-          {notificationSuccess && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {notificationSuccess}
+                  <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors group/item">
+                    <div>
+                      <h3 className="font-medium font-cal">Story Privacy</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-inter">Manage who can view your stories</p>
             </div>
-          )}
-          
-          <form onSubmit={handleNotificationSettings}>
-            <div className="mb-4">
-              <div className="flex items-center">
-                <input
-                  id="emailNotifications"
-                  type="checkbox"
-                  checked={emailNotifications}
-                  onChange={(e) => setEmailNotifications(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="emailNotifications" className="ml-2 block text-gray-700">
-                  Email Notifications
-                </label>
+                    <Button variant="ghost" className="group-hover/item:translate-x-1 transition-transform">
+                      <ChevronRight className="w-5 h-5" />
+                    </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-1 ml-6">
-                Receive email notifications for new messages and contact requests
-              </p>
             </div>
-            
-            <div className="mb-6">
-              <div className="flex items-center">
-                <input
-                  id="pushNotifications"
-                  type="checkbox"
-                  checked={pushNotifications}
-                  onChange={(e) => setPushNotifications(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="pushNotifications" className="ml-2 block text-gray-700">
-                  Push Notifications
-                </label>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Theme Settings */}
+          <motion.div variants={item}>
+            <Card className="group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-cal font-semibold mb-4 flex items-center gap-2">
+                  <Sun className="w-5 h-5 text-yellow-500" />
+                  Appearance
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                    <div>
+                      <h3 className="font-medium font-cal">Theme</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 font-inter">Choose between light and dark mode</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="group/btn">
+                        <Sun className="w-4 h-4 mr-2 group-hover/btn:rotate-90 transition-transform" />
+                        Light
+                      </Button>
+                      <Button variant="outline" size="sm" className="group/btn">
+                        <Moon className="w-4 h-4 mr-2 group-hover/btn:rotate-90 transition-transform" />
+                        Dark
+                      </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-1 ml-6">
-                Receive push notifications when the app is in the background
-              </p>
             </div>
-            
-            <button
-              type="submit"
-              disabled={notificationLoading}
-              className={`px-6 py-2 rounded-md text-white font-medium ${
-                notificationLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {notificationLoading ? 'Saving...' : 'Save Settings'}
-            </button>
-          </form>
         </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
       </div>
-    </div>
+    </SharedLayout>
   );
-};
-
-export default SettingsPage; 
+} 

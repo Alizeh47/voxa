@@ -1,41 +1,34 @@
-import type { Metadata } from "next";
-import { Inter, Tomorrow, Bruno_Ace_SC } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "../contexts/AuthContext";
+import './globals.css';
+import { Inter } from 'next/font/google';
+import { Tomorrow } from 'next/font/google';
+import { AuthProvider } from '../contexts/AuthContext';
+import { Toaster } from 'sonner';
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+const inter = Inter({ subsets: ['latin'] });
 
-const tomorrow = Tomorrow({ 
+const tomorrow = Tomorrow({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600'],
   variable: '--font-tomorrow',
 });
 
-const brunoAceSC = Bruno_Ace_SC({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-bruno-ace',
-});
-
-export const metadata: Metadata = {
-  title: "Voxa - Real-time Messaging for Professionals",
-  description: "A real-time messaging web application for businesses, digital marketers, and content creators.",
+export const metadata = {
+  title: 'Voxa',
+  description: 'Your AI-powered creative companion',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${tomorrow.variable} ${brunoAceSC.variable} antialiased`}>
+    <html lang="en" className={tomorrow.variable}>
+      <body className={inter.variable}>
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Toaster position="top-right" />
       </body>
     </html>
   );

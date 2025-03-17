@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { 
   FiMenu,
   FiMessageCircle,
@@ -24,8 +26,15 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState('messages');
+
+  useEffect(() => {
+    // Set active item based on current pathname
+    const currentPath = pathname.split('/')[1];
+    setActiveItem(currentPath || 'messages');
+  }, [pathname]);
 
   const handleLogout = async () => {
     // Add your logout logic here
@@ -42,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
       id: 'messages',
       icon: <FiMessageCircle size={20} />,
       label: 'Messages',
-      href: '/chat'
+      href: '/'
     },
     {
       id: 'diamond',
@@ -55,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className = '' }) => {
       href: '/projects'
     },
     {
-      id: 'grid',
+      id: 'dashboard',
       icon: <FiGrid size={20} />,
       label: 'Dashboard',
       href: '/dashboard'

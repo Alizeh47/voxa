@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { FiSearch, FiMoreHorizontal, FiPhone, FiVideo, FiMessageSquare, FiMic, FiMicOff, FiCamera, FiCameraOff, FiMaximize2, FiMinimize2, FiSmile, FiBold, FiItalic } from 'react-icons/fi';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
-import RecordRTC from 'recordrtc';
 import { default as ImportedSidebar } from './Sidebar';
 
 interface Message {
@@ -357,27 +356,27 @@ const ChatLayout = () => {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const newRecorder = new RecordRTC(stream, {
+      const RecordRTC = (await import('recordrtc')).default;
+      const recorder = new RecordRTC(stream, {
         type: 'audio',
         mimeType: 'audio/webm',
-        recorderType: RecordRTC.StereoAudioRecorder,
-        numberOfAudioChannels: 1,
+        sampleRate: 44100,
         desiredSampRate: 16000,
+        recorderType: RecordRTC.StereoAudioRecorder,
+        numberOfAudioChannels: 2,
+        bufferSize: 16384,
+        audioBitsPerSecond: 128000,
+        timeSlice: 1000,
+        ondataavailable: (blob: Blob) => {
+          // Handle the recorded audio blob
+          console.log('Audio recorded:', blob);
+        }
       });
-      
-      newRecorder.startRecording();
-      setRecorder(newRecorder);
+      recorder.startRecording();
       setIsRecording(true);
-      
-      // Start timer
-      let seconds = 0;
-      recordingTimerRef.current = setInterval(() => {
-        seconds++;
-        setRecordingTime(seconds);
-      }, 1000);
+      setRecordingTime(0);
     } catch (error) {
-      console.error('Error accessing microphone:', error);
-      alert('Unable to access microphone. Please check your permissions.');
+      console.error('Error starting recording:', error);
     }
   };
 
